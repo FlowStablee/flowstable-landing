@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>FlowStable — Coming Soon</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
+
+<style>
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: 'Inter', sans-serif;
+}
+
+body {
+  height: 100vh;
+  background: radial-gradient(circle at top, #111827, #030712 65%);
+  color: #e5e7eb;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.glow {
+  position: absolute;
+  width: 600px;
+  height: 600px;
+  background: radial-gradient(circle, rgba(79,209,255,0.25), transparent 70%);
+  filter: blur(100px);
+  top: -200px;
+  right: -200px;
+}
+
+.container {
+  text-align: center;
+  padding: 40px;
+  z-index: 1;
+}
+
+.logo {
+  font-size: 1.2rem;
+  letter-spacing: 0.25em;
+  color: #9ca3af;
+  margin-bottom: 16px;
+}
+
+h1 {
+  font-size: 3.4rem;
+  font-weight: 800;
+  letter-spacing: -1px;
+}
+
+h1 span {
+  color: #4fd1ff;
+}
+
+.tagline {
+  margin-top: 18px;
+  font-size: 1.1rem;
+  color: #9ca3af;
+}
+
+.badge {
+  display: inline-block;
+  margin-top: 28px;
+  padding: 10px 26px;
+  border-radius: 999px;
+  border: 1px solid rgba(79,209,255,0.5);
+  color: #4fd1ff;
+  font-size: 0.9rem;
+}
+
+.footer {
+  margin-top: 48px;
+  font-size: 0.8rem;
+  color: #6b7280;
+}
+
+@media (max-width: 600px) {
+  h1 {
+    font-size: 2.5rem;
+  }
+}
+</style>
+</head>
+
+<body>
+<div class="glow"></div>
+
+<div class="container">
+  <div class="logo">FLOWSTABLE</div>
+  <h1>Secure. <span>Stable.</span> Yours.</h1>
+  <p class="tagline">Next-generation hardware & software wallet</p>
+  <div class="badge">Coming Soon</div>
+  <div class="footer">© 2025 FlowStable · flowstable.in</div>
+</div>
+</body>
+</html>
