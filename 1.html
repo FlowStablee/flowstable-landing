@@ -17,10 +17,8 @@
         --text-main: #ffffff;
         --text-muted: #888888;
         --accent: #3b82f6;
-        --accent-glow: rgba(59, 130, 246, 0.5);
         --gradient-text: linear-gradient(135deg, #ffffff 0%, #a5a5a5 100%);
         --radius-lg: 24px;
-        --radius-md: 16px;
         --font-display: 'Space Grotesk', sans-serif;
         --font-body: 'Inter', sans-serif;
     }
@@ -65,14 +63,14 @@
 
     /* NAVIGATION */
     nav {
-        position: fixed;
+        position: absolute; 
         top: 24px;
         left: 50%;
         transform: translateX(-50%);
         width: calc(100% - 48px);
         max-width: 900px;
         height: 64px;
-        background: rgba(10, 10, 10, 0.6);
+        background: rgba(10, 10, 10, 0.8);
         backdrop-filter: blur(16px);
         border: 1px solid var(--border);
         border-radius: 100px;
@@ -116,6 +114,9 @@
     .social-icon {
         color: var(--text-muted);
         opacity: 0.7;
+        display: flex;
+        align-items: center;
+        justify-content: center;
     }
     .social-icon:hover { opacity: 1; color: var(--text-main); }
 
@@ -391,9 +392,10 @@
         color: #fff;
         margin-bottom: 20px;
         font-size: 14px;
+        font-weight: 600;
     }
     .footer-col ul li { margin-bottom: 12px; }
-    .footer-col a { color: var(--text-muted); font-size: 14px; }
+    .footer-col a { color: var(--text-muted); font-size: 14px; display: flex; align-items: center; gap: 8px;}
     .footer-col a:hover { color: #fff; }
 
     /* ANIMATIONS */
@@ -413,11 +415,11 @@
         .span-1 { grid-column: span 1; }
     }
     @media (max-width: 768px) {
-        nav { width: 100%; top: 0; border-radius: 0; border-left: none; border-right: none; max-width: none; }
+        nav { width: 100%; top: 0; border-radius: 0; border-left: none; border-right: none; max-width: none; position: relative; }
         .hero h1 { font-size: 2.5rem; }
         .bento-grid { grid-template-columns: 1fr; }
         .span-2, .span-1 { grid-column: span 1; }
-        .nav-links { display: none; } /* Hide links on mobile for simplicity */
+        .nav-links { display: none; } 
     }
 </style>
 </head>
@@ -431,14 +433,14 @@
         </div>
         <div class="nav-links">
             <a href="#ecosystem">Ecosystem</a>
-            <a href="#developers">Developers</a>
+            <a href="https://github.com/flowStablee" target="_blank">GitHub</a>
             <a href="#community">Community</a>
         </div>
         <div class="nav-socials">
-            <a href="https://x.com/flowstable" target="_blank" class="social-icon">
+            <a href="https://x.com/flowstable" target="_blank" class="social-icon" title="X / Twitter">
                 <svg width="20" height="20" fill="currentColor" viewBox="0 0 24 24"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
             </a>
-            <a href="https://github.com/flowStablee" target="_blank" class="social-icon">
+            <a href="https://github.com/flowStablee" target="_blank" class="social-icon" title="GitHub">
                 <svg width="20" height="20" fill="currentColor" viewBox="0 0 24 24"><path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/></svg>
             </a>
         </div>
@@ -454,8 +456,11 @@
             <p class="hero-sub">Secure, modular, and built for the decentralized web. We are engineering the complete ecosystem for your digital assets.</p>
             
             <div class="cta-group">
-                <a href="#" class="btn btn-primary">Join Waitlist</a>
-                <a href="#" class="btn btn-secondary">Documentation</a>
+                <a href="mailto:connect@flowstable.in" class="btn btn-primary">
+                    <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path></svg>
+                    Contact Us
+                </a>
+                <a href="https://github.com/flowStablee" target="_blank" class="btn btn-secondary">GitHub</a>
             </div>
         </div>
     </header>
@@ -539,8 +544,8 @@
 
                 <div class="card span-1">
                     <div class="card-content">
-                        <h3 class="card-title">API & SDK</h3>
-                        <p class="card-desc">Build on top of FlowStable.</p>
+                        <h3 class="card-title">SDK & API</h3>
+                        <p class="card-desc">Build on top of FlowStable infrastructure.</p>
                     </div>
                     <div class="card-visual" style="padding: 20px; font-family: monospace; color: #444; font-size: 10px;">
                         &lt;code&gt;<br>npm i flowstable<br>init_wallet()<br>&lt;/code&gt;
@@ -551,7 +556,7 @@
         </div>
     </section>
 
-    <footer>
+    <footer id="community">
         <div class="container footer-flex">
             <div class="footer-brand">
                 <img src="https://github.com/FlowStablee/logo/blob/main/flowstable.png?raw=true" alt="FlowStable" style="height: 24px; opacity: 0.8;">
@@ -568,11 +573,23 @@
             </div>
 
             <div class="footer-col">
-                <h4>Resources</h4>
+                <h4>Connect</h4>
                 <ul>
-                    <li><a href="#">Whitepaper</a></li>
-                    <li><a href="#">GitHub</a></li>
-                    <li><a href="#">Status</a></li>
+                    <li>
+                        <a href="mailto:connect@flowstable.in">
+                           connect@flowstable.in
+                        </a>
+                    </li>
+                    <li>
+                        <a href="https://x.com/flowstable" target="_blank">
+                           X / Twitter
+                        </a>
+                    </li>
+                    <li>
+                        <a href="https://github.com/flowStablee" target="_blank">
+                           GitHub
+                        </a>
+                    </li>
                 </ul>
             </div>
 
@@ -590,7 +607,6 @@
     </footer>
 
     <script>
-        // Simple scroll reveal
         document.addEventListener('DOMContentLoaded', () => {
             const cards = document.querySelectorAll('.card');
             
