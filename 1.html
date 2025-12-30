@@ -1,0 +1,615 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>FlowStable | The Future Financial Stack</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
+<style>
+    :root {
+        --bg: #030303;
+        --surface: #0a0a0a;
+        --surface-hover: #121212;
+        --border: rgba(255, 255, 255, 0.08);
+        --border-hover: rgba(255, 255, 255, 0.2);
+        --text-main: #ffffff;
+        --text-muted: #888888;
+        --accent: #3b82f6;
+        --accent-glow: rgba(59, 130, 246, 0.5);
+        --gradient-text: linear-gradient(135deg, #ffffff 0%, #a5a5a5 100%);
+        --radius-lg: 24px;
+        --radius-md: 16px;
+        --font-display: 'Space Grotesk', sans-serif;
+        --font-body: 'Inter', sans-serif;
+    }
+
+    /* RESET */
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    
+    body {
+        background-color: var(--bg);
+        font-family: var(--font-body);
+        color: var(--text-main);
+        line-height: 1.6;
+        overflow-x: hidden;
+        -webkit-font-smoothing: antialiased;
+    }
+
+    a { text-decoration: none; color: inherit; transition: 0.3s; }
+    ul { list-style: none; }
+
+    /* BACKGROUND GRID FX */
+    .bg-grid {
+        position: fixed;
+        top: 0; left: 0; width: 100%; height: 100%;
+        z-index: -1;
+        background-image: 
+            linear-gradient(var(--border) 1px, transparent 1px),
+            linear-gradient(90deg, var(--border) 1px, transparent 1px);
+        background-size: 60px 60px;
+        background-position: center top;
+        opacity: 0.15;
+        mask-image: radial-gradient(circle at center top, black 40%, transparent 80%);
+        -webkit-mask-image: radial-gradient(circle at center top, black 40%, transparent 80%);
+        pointer-events: none;
+    }
+
+    /* LAYOUT UTILS */
+    .container {
+        max-width: 1280px;
+        margin: 0 auto;
+        padding: 0 24px;
+    }
+
+    /* NAVIGATION */
+    nav {
+        position: fixed;
+        top: 24px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: calc(100% - 48px);
+        max-width: 900px;
+        height: 64px;
+        background: rgba(10, 10, 10, 0.6);
+        backdrop-filter: blur(16px);
+        border: 1px solid var(--border);
+        border-radius: 100px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 0 24px;
+        z-index: 1000;
+        box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+    }
+
+    .nav-logo img {
+        height: 32px;
+        width: auto;
+        display: block;
+    }
+
+    .nav-links {
+        display: flex;
+        gap: 32px;
+    }
+
+    .nav-links a {
+        font-size: 14px;
+        font-weight: 500;
+        color: var(--text-muted);
+    }
+
+    .nav-links a:hover {
+        color: var(--text-main);
+    }
+
+    .nav-socials {
+        display: flex;
+        gap: 16px;
+        align-items: center;
+        border-left: 1px solid var(--border);
+        padding-left: 16px;
+    }
+
+    .social-icon {
+        color: var(--text-muted);
+        opacity: 0.7;
+    }
+    .social-icon:hover { opacity: 1; color: var(--text-main); }
+
+    /* HERO SECTION */
+    .hero {
+        padding-top: 180px;
+        padding-bottom: 120px;
+        text-align: center;
+        position: relative;
+    }
+
+    .hero-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid var(--border);
+        padding: 6px 16px;
+        border-radius: 100px;
+        font-size: 13px;
+        font-weight: 500;
+        color: #d4d4d4;
+        margin-bottom: 32px;
+        animation: fadeInDown 0.8s ease-out;
+    }
+
+    .pulse {
+        width: 8px;
+        height: 8px;
+        background: #10b981;
+        border-radius: 50%;
+        box-shadow: 0 0 10px #10b981;
+    }
+
+    h1 {
+        font-family: var(--font-display);
+        font-size: clamp(3rem, 6vw, 5.5rem);
+        font-weight: 700;
+        line-height: 1.1;
+        letter-spacing: -0.03em;
+        margin-bottom: 24px;
+        background: var(--gradient-text);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        animation: fadeInUp 0.8s ease-out 0.2s backwards;
+    }
+
+    .hero-sub {
+        font-size: 1.25rem;
+        color: var(--text-muted);
+        max-width: 600px;
+        margin: 0 auto 40px;
+        animation: fadeInUp 0.8s ease-out 0.4s backwards;
+    }
+
+    .cta-group {
+        display: flex;
+        justify-content: center;
+        gap: 16px;
+        animation: fadeInUp 0.8s ease-out 0.6s backwards;
+    }
+
+    .btn {
+        padding: 16px 32px;
+        border-radius: 12px;
+        font-weight: 600;
+        font-size: 15px;
+        cursor: pointer;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .btn-primary {
+        background: #fff;
+        color: #000;
+        border: 1px solid #fff;
+        box-shadow: 0 0 20px rgba(255,255,255,0.2);
+    }
+    .btn-primary:hover {
+        background: #e5e5e5;
+        transform: translateY(-2px);
+    }
+
+    .btn-secondary {
+        background: rgba(255, 255, 255, 0.05);
+        color: #fff;
+        border: 1px solid var(--border);
+        backdrop-filter: blur(10px);
+    }
+    .btn-secondary:hover {
+        background: rgba(255, 255, 255, 0.1);
+        border-color: #fff;
+    }
+
+    /* BENTO GRID */
+    .bento-section {
+        padding: 60px 0 120px;
+    }
+
+    .bento-grid {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        grid-template-rows: repeat(2, 380px);
+        gap: 24px;
+    }
+
+    .card {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: var(--radius-lg);
+        padding: 32px;
+        position: relative;
+        overflow: hidden;
+        transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+        display: flex;
+        flex-direction: column;
+    }
+
+    .card:hover {
+        border-color: var(--border-hover);
+        transform: translateY(-4px);
+        box-shadow: 0 20px 40px -10px rgba(0,0,0,0.5);
+        background: var(--surface-hover);
+    }
+
+    .card-content {
+        position: relative;
+        z-index: 2;
+    }
+
+    .card-title {
+        font-family: var(--font-display);
+        font-size: 1.5rem;
+        font-weight: 700;
+        margin-bottom: 8px;
+    }
+
+    .card-desc {
+        color: var(--text-muted);
+        font-size: 0.95rem;
+        line-height: 1.5;
+    }
+
+    .tag {
+        position: absolute;
+        top: 24px;
+        right: 24px;
+        font-size: 11px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        padding: 4px 10px;
+        border-radius: 6px;
+        border: 1px solid var(--border);
+        background: rgba(0,0,0,0.3);
+        color: var(--text-muted);
+    }
+
+    /* CUSTOM ILLUSTRATIONS (CSS ONLY) */
+    .card-visual {
+        margin-top: auto;
+        width: 100%;
+        height: 180px;
+        position: relative;
+        border-radius: 12px;
+        background: linear-gradient(180deg, rgba(255,255,255,0.03) 0%, rgba(255,255,255,0.0) 100%);
+        border: 1px solid var(--border);
+        overflow: hidden;
+    }
+
+    /* 1. Wallet Visual */
+    .wallet-ui {
+        position: absolute;
+        bottom: -20px; left: 50%;
+        transform: translateX(-50%);
+        width: 80%;
+        height: 160px;
+        background: #111;
+        border: 1px solid #333;
+        border-radius: 16px 16px 0 0;
+        box-shadow: 0 -10px 30px rgba(0,0,0,0.5);
+    }
+    .wallet-balance {
+        margin: 20px auto;
+        width: 60px; height: 60px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, #333, #111);
+        border: 1px solid #444;
+    }
+    .wallet-line {
+        width: 60%; height: 8px; background: #222; margin: 10px auto; border-radius: 4px;
+    }
+
+    /* 2. Hardware Chip Visual */
+    .chip-visual {
+        width: 100px; height: 100px;
+        background: #1a1a1a;
+        border: 1px solid #333;
+        border-radius: 12px;
+        position: absolute;
+        top: 50%; left: 50%;
+        transform: translate(-50%, -50%);
+        display: grid;
+        place-items: center;
+    }
+    .chip-inner {
+        width: 60px; height: 60px;
+        border: 1px solid gold;
+        opacity: 0.3;
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 2px;
+    }
+    .chip-inner div { background: gold; }
+
+    /* 3. Graph Visual */
+    .graph-visual {
+        position: absolute;
+        bottom: 0; left: 0; right: 0; top: 40px;
+        display: flex;
+        align-items: flex-end;
+        justify-content: space-around;
+        padding: 0 20px;
+    }
+    .bar {
+        width: 15px;
+        background: #3b82f6;
+        opacity: 0.5;
+        border-radius: 4px 4px 0 0;
+    }
+
+    /* 4. Card Visual */
+    .card-mockup {
+        width: 160px; height: 100px;
+        background: linear-gradient(135deg, #222, #000);
+        border: 1px solid #444;
+        border-radius: 12px;
+        position: absolute;
+        top: 50%; left: 50%;
+        transform: translate(-50%, -50%) rotate(-10deg);
+        box-shadow: 10px 10px 30px rgba(0,0,0,0.5);
+    }
+    .card-chip {
+        width: 20px; height: 16px; background: #d4af37; border-radius: 4px;
+        position: absolute; top: 20px; left: 20px;
+    }
+
+    /* GRID SPANS */
+    .span-2 { grid-column: span 2; }
+    .span-1 { grid-column: span 1; }
+
+    /* FOOTER */
+    footer {
+        border-top: 1px solid var(--border);
+        padding: 80px 0 40px;
+        background: #000;
+    }
+    .footer-flex {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        flex-wrap: wrap;
+        gap: 40px;
+    }
+    .footer-brand p {
+        color: var(--text-muted);
+        font-size: 14px;
+        margin-top: 16px;
+        max-width: 300px;
+    }
+    .footer-col h4 {
+        color: #fff;
+        margin-bottom: 20px;
+        font-size: 14px;
+    }
+    .footer-col ul li { margin-bottom: 12px; }
+    .footer-col a { color: var(--text-muted); font-size: 14px; }
+    .footer-col a:hover { color: #fff; }
+
+    /* ANIMATIONS */
+    @keyframes fadeInUp {
+        from { opacity: 0; transform: translateY(20px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes fadeInDown {
+        from { opacity: 0; transform: translateY(-20px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* RESPONSIVE */
+    @media (max-width: 1024px) {
+        .bento-grid { grid-template-columns: repeat(2, 1fr); grid-template-rows: auto; }
+        .span-2 { grid-column: span 2; }
+        .span-1 { grid-column: span 1; }
+    }
+    @media (max-width: 768px) {
+        nav { width: 100%; top: 0; border-radius: 0; border-left: none; border-right: none; max-width: none; }
+        .hero h1 { font-size: 2.5rem; }
+        .bento-grid { grid-template-columns: 1fr; }
+        .span-2, .span-1 { grid-column: span 1; }
+        .nav-links { display: none; } /* Hide links on mobile for simplicity */
+    }
+</style>
+</head>
+<body>
+
+    <div class="bg-grid"></div>
+
+    <nav>
+        <div class="nav-logo">
+            <img src="https://github.com/FlowStablee/logo/blob/main/flowstable.png?raw=true" alt="FlowStable">
+        </div>
+        <div class="nav-links">
+            <a href="#ecosystem">Ecosystem</a>
+            <a href="#developers">Developers</a>
+            <a href="#community">Community</a>
+        </div>
+        <div class="nav-socials">
+            <a href="https://x.com/flowstable" target="_blank" class="social-icon">
+                <svg width="20" height="20" fill="currentColor" viewBox="0 0 24 24"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+            </a>
+            <a href="https://github.com/flowStablee" target="_blank" class="social-icon">
+                <svg width="20" height="20" fill="currentColor" viewBox="0 0 24 24"><path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/></svg>
+            </a>
+        </div>
+    </nav>
+
+    <header class="hero">
+        <div class="container">
+            <div class="hero-badge">
+                <div class="pulse"></div>
+                <span>Pre-Stage Development</span>
+            </div>
+            <h1>The Financial Stack<br>of the Future.</h1>
+            <p class="hero-sub">Secure, modular, and built for the decentralized web. We are engineering the complete ecosystem for your digital assets.</p>
+            
+            <div class="cta-group">
+                <a href="#" class="btn btn-primary">Join Waitlist</a>
+                <a href="#" class="btn btn-secondary">Documentation</a>
+            </div>
+        </div>
+    </header>
+
+    <section id="ecosystem" class="bento-section">
+        <div class="container">
+            <div class="bento-grid">
+                
+                <div class="card span-2">
+                    <div class="card-content">
+                        <h3 class="card-title">FlowStable Wallet</h3>
+                        <p class="card-desc">Non-custodial, high-speed, and beautifully designed. Manage your assets with military-grade security.</p>
+                    </div>
+                    <div class="card-visual">
+                        <div class="wallet-ui">
+                            <div class="wallet-balance"></div>
+                            <div class="wallet-line"></div>
+                            <div class="wallet-line" style="width: 40%"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card span-1">
+                    <div class="tag">Coming Soon</div>
+                    <div class="card-content">
+                        <h3 class="card-title">Hardware Vault</h3>
+                        <p class="card-desc">Cold storage, redefined. Physical security for the digital age.</p>
+                    </div>
+                    <div class="card-visual">
+                        <div class="chip-visual">
+                            <div class="chip-inner">
+                                <div></div><div></div><div></div>
+                                <div></div><div></div><div></div>
+                                <div></div><div></div><div></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card span-1">
+                    <div class="card-content">
+                        <h3 class="card-title">Dripper</h3>
+                        <p class="card-desc">Real-time payment streaming protocol.</p>
+                    </div>
+                    <div class="card-visual">
+                        <div class="graph-visual">
+                            <div class="bar" style="height: 30%"></div>
+                            <div class="bar" style="height: 50%"></div>
+                            <div class="bar" style="height: 70%"></div>
+                            <div class="bar" style="height: 40%"></div>
+                            <div class="bar" style="height: 90%"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card span-1">
+                    <div class="tag">In Dev</div>
+                    <div class="card-content">
+                        <h3 class="card-title">DApps</h3>
+                        <p class="card-desc">A unified interface for decentralized finance protocols.</p>
+                    </div>
+                    <div class="card-visual" style="display:flex; justify-content:center; align-items:center; gap:10px;">
+                        <div style="width:30px; height:30px; border:1px solid #444; border-radius:8px; background:#111;"></div>
+                        <div style="width:30px; height:30px; border:1px solid #444; border-radius:8px; background:#111;"></div>
+                        <div style="width:30px; height:30px; border:1px solid #444; border-radius:8px; background:#111;"></div>
+                    </div>
+                </div>
+
+                <div class="card span-2">
+                    <div class="tag">Concept</div>
+                    <div class="card-content">
+                        <h3 class="card-title">FlowStable Card</h3>
+                        <p class="card-desc">Spend your crypto anywhere. Instant liquidation at the point of sale with zero fees.</p>
+                    </div>
+                    <div class="card-visual">
+                        <div class="card-mockup">
+                            <div class="card-chip"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card span-1">
+                    <div class="card-content">
+                        <h3 class="card-title">API & SDK</h3>
+                        <p class="card-desc">Build on top of FlowStable.</p>
+                    </div>
+                    <div class="card-visual" style="padding: 20px; font-family: monospace; color: #444; font-size: 10px;">
+                        &lt;code&gt;<br>npm i flowstable<br>init_wallet()<br>&lt;/code&gt;
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+    <footer>
+        <div class="container footer-flex">
+            <div class="footer-brand">
+                <img src="https://github.com/FlowStablee/logo/blob/main/flowstable.png?raw=true" alt="FlowStable" style="height: 24px; opacity: 0.8;">
+                <p>Building the secure foundation for the next generation of digital assets.</p>
+            </div>
+            
+            <div class="footer-col">
+                <h4>Product</h4>
+                <ul>
+                    <li><a href="#">Wallet</a></li>
+                    <li><a href="#">Hardware</a></li>
+                    <li><a href="#">Dripper</a></li>
+                </ul>
+            </div>
+
+            <div class="footer-col">
+                <h4>Resources</h4>
+                <ul>
+                    <li><a href="#">Whitepaper</a></li>
+                    <li><a href="#">GitHub</a></li>
+                    <li><a href="#">Status</a></li>
+                </ul>
+            </div>
+
+            <div class="footer-col">
+                <h4>Legal</h4>
+                <ul>
+                    <li><a href="#">Privacy</a></li>
+                    <li><a href="#">Terms</a></li>
+                </ul>
+            </div>
+        </div>
+        <div class="container" style="padding-top: 40px; border-top: 1px solid var(--border); margin-top: 40px; color: #444; font-size: 12px; text-align: center;">
+            &copy; 2025 FlowStable. All rights reserved.
+        </div>
+    </footer>
+
+    <script>
+        // Simple scroll reveal
+        document.addEventListener('DOMContentLoaded', () => {
+            const cards = document.querySelectorAll('.card');
+            
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if(entry.isIntersecting) {
+                        entry.target.style.opacity = 1;
+                        entry.target.style.transform = 'translateY(0)';
+                    }
+                });
+            }, { threshold: 0.1 });
+
+            cards.forEach((card, index) => {
+                card.style.opacity = 0;
+                card.style.transform = 'translateY(20px)';
+                card.style.transition = `all 0.6s cubic-bezier(0.25, 0.8, 0.25, 1) ${index * 0.1}s`;
+                observer.observe(card);
+            });
+        });
+    </script>
+</body>
+</html>
