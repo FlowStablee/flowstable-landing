@@ -1,1236 +1,1220 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Tranzo | Self‑custodial money OS</title>
-  <meta name="description" content="Tranzo is a suite of self‑custodial products: software wallet, hardware wallet, Dripper, payment card, and SDK. You always hold the keys." />
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tranzo — Self-custodial money OS</title>
+  <meta name="description" content="Tranzo is a self-custodial money OS. Software wallet, hardware wallet, Dripper, payment card, and SDK. You always hold the keys.">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
   <style>
-    *, *::before, *::after {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
 
     :root {
-      --bg: #09090b;
-      --surface: rgba(255, 255, 255, 0.03);
-      --frost: rgba(255, 255, 255, 0.05);
-      --frost-strong: rgba(255, 255, 255, 0.08);
-      --frost-border: rgba(255, 255, 255, 0.1);
-      --frost-border-hover: rgba(255, 255, 255, 0.18);
-      --text: #fafafa;
-      --text-secondary: #a1a1aa;
-      --text-muted: #52525b;
-      --font-display: "Space Grotesk", system-ui, sans-serif;
-      --font-body: "Inter", system-ui, sans-serif;
-      --radius: 20px;
-      --radius-sm: 14px;
-      --radius-pill: 999px;
-      --blur: blur(24px);
-      --blur-strong: blur(40px);
-      --transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      --bg: #050507;
+      --frost: rgba(255,255,255,0.04);
+      --frost-hover: rgba(255,255,255,0.07);
+      --border: rgba(255,255,255,0.08);
+      --border-hover: rgba(255,255,255,0.14);
+      --text: #f0f0f2;
+      --text-dim: rgba(255,255,255,0.5);
+      --text-ghost: rgba(255,255,255,0.25);
+      --heading: 'Space Grotesk', system-ui, sans-serif;
+      --body: 'Inter', system-ui, sans-serif;
+      --ease: cubic-bezier(0.16, 1, 0.3, 1);
     }
 
-    html {
-      scroll-behavior: smooth;
-    }
+    html { scroll-behavior: smooth; }
 
     body {
-      min-height: 100vh;
       background: var(--bg);
       color: var(--text);
-      font-family: var(--font-body);
+      font-family: var(--body);
       -webkit-font-smoothing: antialiased;
-      -moz-osx-font-smoothing: grayscale;
       overflow-x: hidden;
     }
 
-    a {
-      color: inherit;
-      text-decoration: none;
-      transition: all var(--transition);
-    }
-
+    a { color: inherit; text-decoration: none; }
     ul { list-style: none; }
 
-    /* Ambient frost orbs - background effect */
-    .ambient {
+    /* ── Noise texture overlay ── */
+    body::before {
+      content: '';
       position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
+      inset: 0;
+      z-index: 9999;
+      pointer-events: none;
+      opacity: 0.025;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+    }
+
+    /* ── Ambient glow ── */
+    .glow {
+      position: fixed;
+      inset: 0;
       pointer-events: none;
       z-index: 0;
       overflow: hidden;
     }
 
-    .ambient-orb {
+    .glow-orb {
       position: absolute;
       border-radius: 50%;
-      filter: blur(120px);
-      opacity: 0.07;
+      filter: blur(140px);
+      opacity: 0.045;
+      background: #fff;
     }
 
-    .ambient-orb:nth-child(1) {
-      width: 600px;
-      height: 600px;
-      background: #ffffff;
-      top: -200px;
-      left: -100px;
-      animation: float 20s ease-in-out infinite;
-    }
+    .glow-orb:nth-child(1) { width: 700px; height: 700px; top: -300px; left: -200px; animation: drift 28s ease-in-out infinite; }
+    .glow-orb:nth-child(2) { width: 500px; height: 500px; bottom: -200px; right: -150px; animation: drift 35s ease-in-out infinite reverse; }
 
-    .ambient-orb:nth-child(2) {
-      width: 500px;
-      height: 500px;
-      background: #e4e4e7;
-      bottom: -150px;
-      right: -100px;
-      animation: float 25s ease-in-out infinite reverse;
-    }
-
-    .ambient-orb:nth-child(3) {
-      width: 300px;
-      height: 300px;
-      background: #ffffff;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      animation: float 30s ease-in-out infinite;
-    }
-
-    @keyframes float {
+    @keyframes drift {
       0%, 100% { transform: translate(0, 0); }
-      25% { transform: translate(30px, -40px); }
-      50% { transform: translate(-20px, 30px); }
-      75% { transform: translate(40px, 20px); }
+      33% { transform: translate(40px, -50px); }
+      66% { transform: translate(-30px, 40px); }
     }
 
-    /* Page container */
-    .page {
+    /* ── Layout ── */
+    .container {
       position: relative;
       z-index: 1;
-      max-width: 1140px;
+      max-width: 1100px;
       margin: 0 auto;
-      padding: 16px 24px 80px;
+      padding: 0 28px;
     }
 
-    /* ═══ NAV ═══ */
-    .nav {
+    /* ── Nav ── */
+    .topbar {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 200;
+      padding: 0 28px;
+      transition: background 0.4s ease, backdrop-filter 0.4s ease;
+    }
+
+    .topbar.scrolled {
+      background: rgba(5,5,7,0.7);
+      backdrop-filter: blur(40px) saturate(1.2);
+      -webkit-backdrop-filter: blur(40px) saturate(1.2);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .topbar-inner {
+      max-width: 1100px;
+      margin: 0 auto;
       display: flex;
       align-items: center;
       justify-content: space-between;
-      padding: 12px 20px;
-      border-radius: var(--radius-pill);
-      border: 1px solid var(--frost-border);
-      background: var(--frost);
-      backdrop-filter: var(--blur-strong);
-      -webkit-backdrop-filter: var(--blur-strong);
-      position: sticky;
-      top: 12px;
-      z-index: 100;
-      transition: all var(--transition);
+      height: 64px;
     }
 
-    .nav:hover {
-      border-color: var(--frost-border-hover);
-    }
-
-    .nav-left {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-    }
-
-    .nav-mark {
-      width: 32px;
-      height: 32px;
-      border-radius: 10px;
-      border: 1px solid var(--frost-border);
-      background: var(--frost-strong);
-      backdrop-filter: var(--blur);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-family: var(--font-display);
-      font-size: 12px;
-      font-weight: 600;
-      letter-spacing: 0.05em;
-    }
-
-    .nav-brand {
-      display: flex;
-      flex-direction: column;
-      gap: 1px;
-    }
-
-    .nav-brand-name {
-      font-family: var(--font-display);
-      font-size: 15px;
-      font-weight: 600;
-      letter-spacing: 0.12em;
-      text-transform: uppercase;
-    }
-
-    .nav-brand-sub {
-      font-size: 10px;
-      color: var(--text-muted);
-      letter-spacing: 0.04em;
-    }
-
-    .nav-links {
-      display: flex;
-      align-items: center;
-      gap: 6px;
-    }
-
-    .nav-link {
-      padding: 6px 14px;
-      border-radius: var(--radius-pill);
-      font-size: 13px;
-      color: var(--text-secondary);
-      transition: all var(--transition);
-    }
-
-    .nav-link:hover, .nav-link.active {
-      color: var(--text);
-      background: var(--frost-strong);
-    }
-
-    .nav-right {
+    .logo {
       display: flex;
       align-items: center;
       gap: 10px;
     }
 
-    .nav-tag {
-      padding: 5px 12px;
-      border-radius: var(--radius-pill);
-      border: 1px solid var(--frost-border);
-      font-size: 10px;
-      text-transform: uppercase;
-      letter-spacing: 0.12em;
-      color: var(--text-muted);
-      backdrop-filter: var(--blur);
-    }
-
-    .btn-primary {
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      padding: 8px 18px;
-      border-radius: var(--radius-pill);
-      border: 1px solid var(--frost-border-hover);
-      background: rgba(255, 255, 255, 0.95);
-      color: #09090b;
-      font-size: 12px;
-      font-weight: 500;
-      letter-spacing: 0.06em;
-      text-transform: uppercase;
-      cursor: pointer;
-      transition: all var(--transition);
-      backdrop-filter: var(--blur);
-    }
-
-    .btn-primary:hover {
-      background: #ffffff;
-      transform: translateY(-1px);
-      box-shadow: 0 8px 32px rgba(255, 255, 255, 0.1);
-    }
-
-    .btn-ghost {
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      padding: 8px 18px;
-      border-radius: var(--radius-pill);
-      border: 1px solid var(--frost-border);
+    .logo-icon {
+      width: 28px;
+      height: 28px;
+      border-radius: 8px;
+      border: 1px solid var(--border);
       background: var(--frost);
-      backdrop-filter: var(--blur);
-      color: var(--text);
-      font-size: 12px;
-      font-weight: 500;
-      letter-spacing: 0.06em;
-      text-transform: uppercase;
-      cursor: pointer;
-      transition: all var(--transition);
-    }
-
-    .btn-ghost:hover {
-      border-color: var(--frost-border-hover);
-      background: var(--frost-strong);
-      transform: translateY(-1px);
-    }
-
-    /* ═══ HERO ═══ */
-    .hero {
       display: grid;
-      grid-template-columns: 1.2fr 1fr;
-      gap: 40px;
-      margin-top: 56px;
-      align-items: start;
+      place-items: center;
+      font-family: var(--heading);
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: 0.08em;
     }
 
-    .hero-left {
+    .logo-text {
+      font-family: var(--heading);
+      font-size: 16px;
+      font-weight: 600;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+    }
+
+    .topbar-links {
+      display: flex;
+      align-items: center;
+      gap: 32px;
+    }
+
+    .topbar-link {
+      font-size: 13px;
+      font-weight: 400;
+      color: var(--text-dim);
+      transition: color 0.3s ease;
+      letter-spacing: 0.01em;
+    }
+
+    .topbar-link:hover { color: var(--text); }
+
+    .topbar-cta {
+      padding: 8px 20px;
+      border-radius: 999px;
+      background: #fff;
+      color: #050507;
+      font-size: 12px;
+      font-weight: 500;
+      letter-spacing: 0.04em;
+      cursor: pointer;
+      border: none;
+      transition: all 0.3s var(--ease);
+    }
+
+    .topbar-cta:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 0 30px rgba(255,255,255,0.08);
+    }
+
+    /* ── Mobile menu ── */
+    .menu-toggle {
+      display: none;
+      background: none;
+      border: none;
+      color: var(--text);
+      cursor: pointer;
+      padding: 8px;
+    }
+
+    .menu-toggle svg { display: block; }
+
+    /* ── Hero ── */
+    .hero {
+      min-height: 100vh;
       display: flex;
       flex-direction: column;
-      gap: 24px;
-      padding-top: 20px;
+      justify-content: center;
+      padding: 140px 0 80px;
     }
 
-    .hero-badge {
+    .hero-tag {
       display: inline-flex;
       align-items: center;
-      gap: 10px;
-      padding: 7px 16px;
-      border-radius: var(--radius-pill);
-      border: 1px solid var(--frost-border);
+      gap: 8px;
+      padding: 6px 14px;
+      border-radius: 999px;
+      border: 1px solid var(--border);
       background: var(--frost);
-      backdrop-filter: var(--blur);
+      backdrop-filter: blur(20px);
       font-size: 11px;
-      color: var(--text-secondary);
+      color: var(--text-dim);
       width: fit-content;
+      margin-bottom: 32px;
     }
 
-    .hero-dot {
+    .hero-pulse {
       width: 6px;
       height: 6px;
       border-radius: 50%;
-      background: var(--text);
-      box-shadow: 0 0 8px rgba(255, 255, 255, 0.4);
-      animation: pulse 2s ease-in-out infinite;
+      background: #fff;
+      animation: pulse 2.5s ease-in-out infinite;
     }
 
     @keyframes pulse {
-      0%, 100% { opacity: 1; }
-      50% { opacity: 0.4; }
+      0%, 100% { opacity: 1; box-shadow: 0 0 0 0 rgba(255,255,255,0.3); }
+      50% { opacity: 0.5; box-shadow: 0 0 12px 4px rgba(255,255,255,0.05); }
     }
 
-    .hero-eyebrow {
-      font-size: 11px;
-      text-transform: uppercase;
-      letter-spacing: 0.2em;
-      color: var(--text-muted);
-    }
-
-    .hero-title {
-      font-family: var(--font-display);
+    .hero-heading {
+      font-family: var(--heading);
       font-weight: 700;
-      font-size: clamp(2.6rem, 4.5vw, 3.6rem);
-      letter-spacing: -0.04em;
-      line-height: 1.05;
+      font-size: clamp(3rem, 7vw, 5.2rem);
+      line-height: 1.02;
+      letter-spacing: -0.045em;
+      margin-bottom: 28px;
+      max-width: 700px;
     }
 
-    .hero-title span {
-      display: block;
+    .hero-heading .thin {
+      font-weight: 300;
+      color: var(--text-dim);
     }
 
-    .hero-desc {
-      max-width: 480px;
-      font-size: 15px;
-      line-height: 1.65;
-      color: var(--text-secondary);
-    }
-
-    .hero-promise {
-      font-size: 12px;
-      color: var(--text-muted);
-      letter-spacing: 0.02em;
+    .hero-sub {
+      font-size: 16px;
+      line-height: 1.7;
+      color: var(--text-dim);
+      max-width: 500px;
+      margin-bottom: 40px;
+      font-weight: 300;
     }
 
     .hero-actions {
       display: flex;
-      flex-wrap: wrap;
-      gap: 10px;
-      margin-top: 4px;
-    }
-
-    .hero-stage {
-      display: inline-flex;
       align-items: center;
-      gap: 8px;
-      padding: 8px 16px;
-      border-radius: var(--radius-pill);
-      border: 1px solid var(--frost-border);
-      background: var(--frost);
-      backdrop-filter: var(--blur);
-      font-size: 11px;
-      color: var(--text-muted);
-      width: fit-content;
-    }
-
-    /* Phone mockup */
-    .hero-right {
-      border-radius: var(--radius);
-      border: 1px solid var(--frost-border);
-      background: var(--frost);
-      backdrop-filter: var(--blur-strong);
-      -webkit-backdrop-filter: var(--blur-strong);
-      padding: 18px;
-      display: flex;
-      flex-direction: column;
-      gap: 14px;
-      transition: all var(--transition);
-    }
-
-    .hero-right:hover {
-      border-color: var(--frost-border-hover);
-    }
-
-    .phone-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      font-size: 11px;
-      color: var(--text-muted);
-    }
-
-    .phone-tag {
-      padding: 4px 10px;
-      border-radius: var(--radius-pill);
-      border: 1px solid var(--frost-border);
-      backdrop-filter: var(--blur);
-    }
-
-    .phone {
-      border-radius: var(--radius);
-      border: 1px solid var(--frost-border);
-      background: rgba(0, 0, 0, 0.3);
-      backdrop-filter: var(--blur);
-      padding: 16px;
-      display: flex;
-      flex-direction: column;
       gap: 12px;
+      margin-bottom: 64px;
     }
 
-    .phone-balance {
-      padding: 14px;
-      border-radius: var(--radius-sm);
-      border: 1px solid var(--frost-border);
+    .btn-solid {
+      padding: 12px 28px;
+      border-radius: 999px;
+      background: #fff;
+      color: #050507;
+      font-size: 13px;
+      font-weight: 500;
+      letter-spacing: 0.02em;
+      border: none;
+      cursor: pointer;
+      transition: all 0.3s var(--ease);
+    }
+
+    .btn-solid:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 0 40px rgba(255,255,255,0.1);
+    }
+
+    .btn-outline {
+      padding: 12px 28px;
+      border-radius: 999px;
+      background: transparent;
+      color: var(--text);
+      font-size: 13px;
+      font-weight: 400;
+      border: 1px solid var(--border);
+      cursor: pointer;
+      transition: all 0.3s var(--ease);
+      backdrop-filter: blur(12px);
+    }
+
+    .btn-outline:hover {
+      border-color: var(--border-hover);
       background: var(--frost);
-      backdrop-filter: var(--blur);
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
+      transform: translateY(-1px);
     }
 
-    .phone-balance-info {
+    /* ── Hero metrics strip ── */
+    .hero-metrics {
+      display: flex;
+      gap: 48px;
+      padding-top: 40px;
+      border-top: 1px solid var(--border);
+    }
+
+    .metric {
       display: flex;
       flex-direction: column;
-      gap: 3px;
+      gap: 4px;
     }
 
-    .phone-label {
-      font-size: 10px;
-      text-transform: uppercase;
-      letter-spacing: 0.16em;
-      color: var(--text-muted);
-    }
-
-    .phone-amount {
-      font-family: var(--font-display);
+    .metric-value {
+      font-family: var(--heading);
       font-size: 22px;
       font-weight: 600;
       letter-spacing: -0.02em;
     }
 
-    .phone-balance-meta {
+    .metric-label {
+      font-size: 11px;
+      color: var(--text-ghost);
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    /* ── Frost card component ── */
+    .frost-card {
+      border-radius: 20px;
+      border: 1px solid var(--border);
+      background: var(--frost);
+      backdrop-filter: blur(30px) saturate(1.1);
+      -webkit-backdrop-filter: blur(30px) saturate(1.1);
+      padding: 32px;
+      transition: border-color 0.4s ease, background 0.4s ease;
+    }
+
+    .frost-card:hover {
+      border-color: var(--border-hover);
+      background: var(--frost-hover);
+    }
+
+    /* ── Sections ── */
+    .section {
+      padding: 120px 0;
+    }
+
+    .section-label {
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.24em;
+      color: var(--text-ghost);
+      margin-bottom: 12px;
+    }
+
+    .section-heading {
+      font-family: var(--heading);
+      font-size: clamp(1.8rem, 3.5vw, 2.6rem);
+      font-weight: 600;
+      letter-spacing: -0.035em;
+      line-height: 1.15;
+      margin-bottom: 16px;
+      max-width: 560px;
+    }
+
+    .section-sub {
+      font-size: 15px;
+      color: var(--text-dim);
+      line-height: 1.65;
+      max-width: 480px;
+      margin-bottom: 48px;
+      font-weight: 300;
+    }
+
+    /* ── Wallet preview card ── */
+    .wallet-preview {
+      border-radius: 24px;
+      border: 1px solid var(--border);
+      background: rgba(255,255,255,0.02);
+      backdrop-filter: blur(40px);
+      padding: 2px;
+      margin-top: 64px;
+    }
+
+    .wallet-inner {
+      border-radius: 22px;
+      border: 1px solid rgba(255,255,255,0.04);
+      background: rgba(0,0,0,0.4);
+      padding: 28px;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 24px;
+    }
+
+    .wallet-left {
       display: flex;
       flex-direction: column;
-      align-items: flex-end;
-      gap: 4px;
+      gap: 20px;
     }
 
-    .phone-mini-tag {
-      padding: 3px 8px;
-      border-radius: var(--radius-pill);
-      border: 1px solid var(--frost-border);
+    .wallet-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .wallet-title {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.16em;
+      color: var(--text-ghost);
+    }
+
+    .wallet-status {
+      padding: 4px 10px;
+      border-radius: 999px;
+      border: 1px solid var(--border);
       font-size: 9px;
-      color: var(--text-muted);
-      backdrop-filter: var(--blur);
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--text-ghost);
     }
 
-    .phone-products {
+    .wallet-balance {
+      font-family: var(--heading);
+      font-size: 36px;
+      font-weight: 600;
+      letter-spacing: -0.03em;
+    }
+
+    .wallet-balance-sub {
+      font-size: 12px;
+      color: var(--text-ghost);
+      margin-top: 4px;
+    }
+
+    .wallet-chips {
       display: flex;
       flex-wrap: wrap;
       gap: 6px;
     }
 
-    .phone-pill {
-      padding: 7px 12px;
-      border-radius: var(--radius-pill);
-      border: 1px solid var(--frost-border);
-      background: var(--frost);
-      backdrop-filter: var(--blur);
+    .wallet-chip {
+      padding: 6px 12px;
+      border-radius: 999px;
+      border: 1px solid var(--border);
       font-size: 10px;
-      color: var(--text-secondary);
-      transition: all var(--transition);
+      color: var(--text-dim);
+      transition: all 0.3s ease;
     }
 
-    .phone-pill:hover {
-      border-color: var(--frost-border-hover);
+    .wallet-chip:hover {
+      border-color: var(--border-hover);
       color: var(--text);
     }
 
-    .phone-chat {
+    .wallet-right {
       border-radius: 16px;
-      border: 1px solid var(--frost-border);
+      border: 1px solid var(--border);
       background: var(--frost);
-      backdrop-filter: var(--blur);
-      padding: 12px;
+      padding: 20px;
       display: flex;
       flex-direction: column;
-      gap: 8px;
-    }
-
-    .chat-row {
-      display: flex;
-      gap: 8px;
-    }
-
-    .chat-avatar {
-      width: 20px;
-      height: 20px;
-      border-radius: 50%;
-      border: 1px solid var(--frost-border);
-      background: var(--frost);
-      flex-shrink: 0;
-    }
-
-    .chat-bubble {
-      padding: 8px 12px;
-      border-radius: 14px;
-      border: 1px solid var(--frost-border);
-      background: var(--frost);
-      backdrop-filter: var(--blur);
-      font-size: 11px;
-      line-height: 1.5;
-      color: var(--text-secondary);
-    }
-
-    .chat-bubble.user {
-      margin-left: auto;
-      background: var(--frost-strong);
-      color: var(--text);
-    }
-
-    .chat-input {
-      margin-top: 4px;
-      padding: 8px 12px;
-      border-radius: var(--radius-pill);
-      border: 1px solid var(--frost-border);
-      background: var(--frost);
-      font-size: 11px;
-      color: var(--text-muted);
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-
-    .chat-dots {
-      display: flex;
-      gap: 3px;
-    }
-
-    .chat-dot {
-      width: 3px;
-      height: 3px;
-      border-radius: 50%;
-      background: var(--text-muted);
-    }
-
-    .phone-caption {
-      display: flex;
-      justify-content: space-between;
-      font-size: 10px;
-      color: var(--text-muted);
-    }
-
-    /* ═══ STRIP ═══ */
-    .strip {
-      margin-top: 40px;
-      padding: 14px 20px;
-      border-radius: var(--radius-sm);
-      border: 1px solid var(--frost-border);
-      background: var(--frost);
-      backdrop-filter: var(--blur-strong);
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      gap: 16px;
-    }
-
-    .strip-label {
-      font-size: 10px;
-      text-transform: uppercase;
-      letter-spacing: 0.2em;
-      color: var(--text-muted);
-    }
-
-    .strip-pills {
-      display: flex;
-      gap: 8px;
-      flex-wrap: wrap;
-      justify-content: flex-end;
-    }
-
-    .strip-pill {
-      padding: 6px 14px;
-      border-radius: var(--radius-pill);
-      border: 1px solid var(--frost-border);
-      background: var(--frost);
-      backdrop-filter: var(--blur);
-      font-size: 11px;
-      color: var(--text-secondary);
-      transition: all var(--transition);
-    }
-
-    .strip-pill:hover {
-      border-color: var(--frost-border-hover);
-      color: var(--text);
-    }
-
-    /* ═══ SECTION ═══ */
-    .section {
-      margin-top: 48px;
-      border-radius: var(--radius);
-      border: 1px solid var(--frost-border);
-      background: var(--frost);
-      backdrop-filter: var(--blur-strong);
-      -webkit-backdrop-filter: var(--blur-strong);
-      padding: 28px 24px;
-      display: flex;
-      flex-direction: column;
-      gap: 24px;
-      transition: all var(--transition);
-    }
-
-    .section:hover {
-      border-color: var(--frost-border-hover);
-    }
-
-    .section-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: flex-end;
-      gap: 20px;
-    }
-
-    .section-title-block {
-      display: flex;
-      flex-direction: column;
-      gap: 4px;
-    }
-
-    .section-eyebrow {
-      font-size: 10px;
-      text-transform: uppercase;
-      letter-spacing: 0.2em;
-      color: var(--text-muted);
-    }
-
-    .section-title {
-      font-family: var(--font-display);
-      font-size: 20px;
-      font-weight: 600;
-      letter-spacing: -0.02em;
-    }
-
-    .section-desc {
-      font-size: 13px;
-      color: var(--text-secondary);
-      max-width: 400px;
-      line-height: 1.6;
-    }
-
-    /* Product cards */
-    .products-grid {
-      display: grid;
-      grid-template-columns: repeat(4, 1fr);
       gap: 12px;
     }
 
-    .product-card {
-      border-radius: var(--radius-sm);
-      border: 1px solid var(--frost-border);
-      background: var(--frost);
-      backdrop-filter: var(--blur);
-      padding: 16px 14px;
+    .tx-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 10px 0;
+      border-bottom: 1px solid rgba(255,255,255,0.04);
+    }
+
+    .tx-row:last-child { border: none; }
+
+    .tx-info {
       display: flex;
       flex-direction: column;
-      gap: 8px;
-      transition: all var(--transition);
-      cursor: default;
+      gap: 2px;
     }
 
-    .product-card:hover {
-      border-color: var(--frost-border-hover);
-      background: var(--frost-strong);
-      transform: translateY(-2px);
-    }
-
-    .product-label {
-      font-size: 10px;
-      text-transform: uppercase;
-      letter-spacing: 0.18em;
-      color: var(--text-muted);
-    }
-
-    .product-name {
-      font-family: var(--font-display);
-      font-size: 14px;
+    .tx-name {
+      font-size: 12px;
       font-weight: 500;
     }
 
-    .product-desc {
-      font-size: 12px;
-      color: var(--text-secondary);
-      line-height: 1.55;
-    }
-
-    .product-note {
-      margin-top: auto;
+    .tx-detail {
       font-size: 10px;
-      color: var(--text-muted);
-      padding-top: 8px;
-      border-top: 1px solid var(--frost-border);
+      color: var(--text-ghost);
     }
 
-    /* SDK + Builders row */
-    .bottom-row {
+    .tx-amount {
+      font-family: var(--heading);
+      font-size: 13px;
+      font-weight: 500;
+      text-align: right;
+    }
+
+    .tx-amount.positive { color: rgba(255,255,255,0.7); }
+    .tx-amount.negative { color: var(--text-dim); }
+
+    /* ── Products grid ── */
+    .products-grid {
       display: grid;
-      grid-template-columns: 1.2fr 1fr;
-      gap: 12px;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1px;
+      background: var(--border);
+      border-radius: 20px;
+      overflow: hidden;
     }
 
-    .info-card {
-      border-radius: var(--radius-sm);
-      border: 1px solid var(--frost-border);
+    .product-cell {
+      background: var(--bg);
+      padding: 36px 28px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      transition: background 0.4s ease;
+      cursor: default;
+    }
+
+    .product-cell:hover {
+      background: rgba(255,255,255,0.02);
+    }
+
+    .product-num {
+      font-family: var(--heading);
+      font-size: 28px;
+      font-weight: 300;
+      color: var(--text-ghost);
+      letter-spacing: -0.02em;
+    }
+
+    .product-name {
+      font-family: var(--heading);
+      font-size: 17px;
+      font-weight: 600;
+      letter-spacing: -0.01em;
+    }
+
+    .product-desc {
+      font-size: 13px;
+      color: var(--text-dim);
+      line-height: 1.6;
+      font-weight: 300;
+    }
+
+    .product-tag {
+      margin-top: auto;
+      padding-top: 16px;
+      font-size: 10px;
+      color: var(--text-ghost);
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+    }
+
+    /* ── How it works ── */
+    .flow {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 16px;
+    }
+
+    .flow-step {
+      position: relative;
+      padding: 28px 20px;
+      border-radius: 16px;
+      border: 1px solid var(--border);
       background: var(--frost);
-      backdrop-filter: var(--blur);
-      padding: 18px 16px;
+      backdrop-filter: blur(20px);
       display: flex;
       flex-direction: column;
       gap: 10px;
-      transition: all var(--transition);
+      transition: all 0.4s var(--ease);
     }
 
-    .info-card:hover {
-      border-color: var(--frost-border-hover);
+    .flow-step:hover {
+      border-color: var(--border-hover);
+      transform: translateY(-3px);
     }
 
-    .info-title {
-      font-size: 11px;
-      text-transform: uppercase;
-      letter-spacing: 0.16em;
-      color: var(--text-muted);
+    .flow-num {
+      font-family: var(--heading);
+      font-size: 32px;
+      font-weight: 300;
+      color: rgba(255,255,255,0.08);
+      letter-spacing: -0.02em;
     }
 
-    .info-body {
-      font-size: 13px;
-      color: var(--text-secondary);
+    .flow-title {
+      font-family: var(--heading);
+      font-size: 14px;
+      font-weight: 600;
+    }
+
+    .flow-desc {
+      font-size: 12px;
+      color: var(--text-dim);
       line-height: 1.6;
+      font-weight: 300;
     }
 
-    /* ═══ FAQ ═══ */
-    .faq-grid {
+    /* ── Divider ── */
+    .divider {
+      height: 1px;
+      background: var(--border);
+    }
+
+    /* ── SDK section ── */
+    .sdk-grid {
       display: grid;
-      grid-template-columns: repeat(2, 1fr);
-      gap: 10px;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
     }
 
-    details {
-      border-radius: var(--radius-sm);
-      border: 1px solid var(--frost-border);
+    .sdk-card {
+      border-radius: 20px;
+      border: 1px solid var(--border);
       background: var(--frost);
-      backdrop-filter: var(--blur);
-      padding: 14px 16px;
+      backdrop-filter: blur(20px);
+      padding: 32px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      transition: all 0.4s ease;
+    }
+
+    .sdk-card:hover {
+      border-color: var(--border-hover);
+    }
+
+    .sdk-title {
+      font-family: var(--heading);
+      font-size: 16px;
+      font-weight: 600;
+    }
+
+    .sdk-body {
       font-size: 13px;
-      transition: all var(--transition);
+      color: var(--text-dim);
+      line-height: 1.65;
+      font-weight: 300;
     }
 
-    details:hover {
-      border-color: var(--frost-border-hover);
+    .code-block {
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      background: rgba(0,0,0,0.5);
+      padding: 18px 20px;
+      font-family: 'SF Mono', 'Fira Code', monospace;
+      font-size: 12px;
+      line-height: 1.7;
+      color: var(--text-dim);
+      overflow-x: auto;
     }
 
-    details[open] {
-      background: var(--frost-strong);
+    .code-keyword { color: rgba(255,255,255,0.35); }
+    .code-fn { color: rgba(255,255,255,0.7); }
+    .code-str { color: rgba(255,255,255,0.45); }
+    .code-comment { color: rgba(255,255,255,0.18); }
+
+    /* ── FAQ ── */
+    .faq-list {
+      display: flex;
+      flex-direction: column;
+      gap: 1px;
+      background: var(--border);
+      border-radius: 16px;
+      overflow: hidden;
     }
 
-    summary {
+    .faq-item {
+      background: var(--bg);
+      border: none;
+      border-radius: 0;
+      padding: 0;
+    }
+
+    .faq-item summary {
+      padding: 20px 28px;
       cursor: pointer;
       list-style: none;
       display: flex;
       justify-content: space-between;
       align-items: center;
-      gap: 12px;
-      font-weight: 500;
+      gap: 20px;
+      font-size: 14px;
+      font-weight: 400;
+      transition: background 0.3s ease;
     }
 
-    summary::-webkit-details-marker { display: none; }
-
-    .faq-q {
-      font-size: 13px;
+    .faq-item summary:hover {
+      background: rgba(255,255,255,0.02);
     }
+
+    .faq-item summary::-webkit-details-marker { display: none; }
 
     .faq-icon {
-      font-size: 16px;
-      color: var(--text-muted);
-      transition: transform var(--transition);
+      font-size: 18px;
+      color: var(--text-ghost);
+      transition: transform 0.3s var(--ease);
       flex-shrink: 0;
     }
 
-    details[open] .faq-icon {
+    .faq-item[open] .faq-icon {
       transform: rotate(45deg);
     }
 
-    .faq-a {
-      margin-top: 10px;
+    .faq-answer {
+      padding: 0 28px 20px;
       font-size: 13px;
-      color: var(--text-secondary);
-      line-height: 1.6;
+      color: var(--text-dim);
+      line-height: 1.7;
+      font-weight: 300;
+      max-width: 600px;
     }
 
-    /* ═══ FOOTER ═══ */
+    /* ── CTA block ── */
+    .cta-block {
+      text-align: center;
+      padding: 80px 0;
+    }
+
+    .cta-heading {
+      font-family: var(--heading);
+      font-size: clamp(1.6rem, 3vw, 2.2rem);
+      font-weight: 600;
+      letter-spacing: -0.03em;
+      margin-bottom: 12px;
+    }
+
+    .cta-sub {
+      font-size: 14px;
+      color: var(--text-dim);
+      margin-bottom: 28px;
+      font-weight: 300;
+    }
+
+    /* ── Footer ── */
     .footer {
-      margin-top: 48px;
-      padding-top: 24px;
-      border-top: 1px solid var(--frost-border);
+      padding: 28px 0;
+      border-top: 1px solid var(--border);
       display: flex;
       justify-content: space-between;
-      align-items: flex-start;
-      gap: 20px;
+      align-items: center;
       flex-wrap: wrap;
+      gap: 16px;
     }
 
     .footer-left {
+      font-size: 11px;
+      color: var(--text-ghost);
       display: flex;
       flex-direction: column;
-      gap: 4px;
-      font-size: 11px;
-      color: var(--text-muted);
+      gap: 2px;
     }
 
-    .footer-right {
+    .footer-links {
       display: flex;
-      gap: 16px;
-      flex-wrap: wrap;
+      gap: 20px;
     }
 
     .footer-link {
       font-size: 12px;
-      color: var(--text-muted);
-      transition: all var(--transition);
-      position: relative;
+      color: var(--text-ghost);
+      transition: color 0.3s ease;
     }
 
-    .footer-link::after {
-      content: "";
-      position: absolute;
-      bottom: -2px;
-      left: 0;
-      width: 0;
-      height: 1px;
-      background: var(--text-secondary);
-      transition: width var(--transition);
-    }
+    .footer-link:hover { color: var(--text-dim); }
 
-    .footer-link:hover {
-      color: var(--text-secondary);
-    }
-
-    .footer-link:hover::after {
-      width: 100%;
-    }
-
-    /* ═══ ANIMATIONS ═══ */
-    @keyframes fadeUp {
-      from {
-        opacity: 0;
-        transform: translateY(20px);
-      }
-      to {
-        opacity: 1;
-        transform: translateY(0);
-      }
-    }
-
-    .animate {
+    /* ── Reveal animation ── */
+    .reveal {
       opacity: 0;
-      animation: fadeUp 0.6s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+      transform: translateY(24px);
+      transition: opacity 0.7s var(--ease), transform 0.7s var(--ease);
     }
 
-    .delay-1 { animation-delay: 0.1s; }
-    .delay-2 { animation-delay: 0.2s; }
-    .delay-3 { animation-delay: 0.3s; }
-    .delay-4 { animation-delay: 0.4s; }
-    .delay-5 { animation-delay: 0.5s; }
+    .reveal.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
 
-    /* ═══ RESPONSIVE ═══ */
+    .reveal-delay-1 { transition-delay: 0.08s; }
+    .reveal-delay-2 { transition-delay: 0.16s; }
+    .reveal-delay-3 { transition-delay: 0.24s; }
+    .reveal-delay-4 { transition-delay: 0.32s; }
+
+    /* ── Responsive ── */
     @media (max-width: 960px) {
-      .page { padding: 14px 18px 64px; }
-      .nav-links { display: none; }
-      .hero {
-        grid-template-columns: 1fr;
-        gap: 32px;
-      }
-      .hero-right { order: -1; }
+      .topbar-links { display: none; }
+      .menu-toggle { display: block; }
+      .hero-heading { font-size: clamp(2.4rem, 6vw, 3.6rem); }
+      .wallet-inner { grid-template-columns: 1fr; }
       .products-grid { grid-template-columns: repeat(2, 1fr); }
-      .bottom-row { grid-template-columns: 1fr; }
-      .section-header { flex-direction: column; align-items: flex-start; }
+      .flow { grid-template-columns: repeat(2, 1fr); }
+      .sdk-grid { grid-template-columns: 1fr; }
+      .hero-metrics { gap: 32px; flex-wrap: wrap; }
     }
 
     @media (max-width: 640px) {
-      .nav {
-        border-radius: 16px;
-        padding: 10px 14px;
-      }
-      .nav-brand-name { font-size: 13px; }
-      .nav-tag { display: none; }
-      .hero { gap: 24px; margin-top: 36px; }
-      .hero-title { font-size: 2.2rem; }
-      .section { padding: 20px 16px; }
+      .container { padding: 0 18px; }
+      .topbar { padding: 0 18px; }
+      .hero { padding: 120px 0 60px; }
+      .hero-heading { font-size: 2rem; }
+      .section { padding: 80px 0; }
       .products-grid { grid-template-columns: 1fr; }
-      .faq-grid { grid-template-columns: 1fr; }
-      .strip {
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 10px;
-      }
-      .strip-pills { justify-content: flex-start; }
+      .flow { grid-template-columns: 1fr; }
+      .hero-metrics { gap: 24px; }
+      .wallet-inner { padding: 18px; }
+      .product-cell { padding: 24px 20px; }
+      .frost-card { padding: 24px; }
+    }
+
+    /* ── Mobile nav overlay ── */
+    .mobile-nav {
+      display: none;
+      position: fixed;
+      inset: 0;
+      z-index: 199;
+      background: rgba(5,5,7,0.95);
+      backdrop-filter: blur(40px);
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 28px;
+    }
+
+    .mobile-nav.open { display: flex; }
+
+    .mobile-nav a {
+      font-family: var(--heading);
+      font-size: 24px;
+      font-weight: 500;
+      color: var(--text-dim);
+      transition: color 0.3s ease;
+    }
+
+    .mobile-nav a:hover { color: var(--text); }
+
+    .mobile-nav-close {
+      position: absolute;
+      top: 20px;
+      right: 28px;
+      background: none;
+      border: none;
+      color: var(--text);
+      cursor: pointer;
+      padding: 8px;
     }
   </style>
 </head>
 <body>
 
-  <!-- Ambient frost background -->
-  <div class="ambient">
-    <div class="ambient-orb"></div>
-    <div class="ambient-orb"></div>
-    <div class="ambient-orb"></div>
+  <!-- Ambient glow -->
+  <div class="glow">
+    <div class="glow-orb"></div>
+    <div class="glow-orb"></div>
   </div>
 
-  <main class="page">
-
-    <!-- NAV -->
-    <header class="nav animate">
-      <div class="nav-left">
-        <div class="nav-mark">TZ</div>
-        <div class="nav-brand">
-          <div class="nav-brand-name">Tranzo</div>
-          <div class="nav-brand-sub">by Tranzo Labs</div>
-        </div>
-      </div>
-      <nav class="nav-links">
-        <a href="#overview" class="nav-link active">Overview</a>
-        <a href="#ecosystem" class="nav-link">Ecosystem</a>
-        <a href="#faq" class="nav-link">FAQ</a>
+  <!-- Nav -->
+  <header class="topbar" id="topbar">
+    <div class="topbar-inner">
+      <a href="#" class="logo">
+        <div class="logo-icon">TZ</div>
+        <span class="logo-text">Tranzo</span>
+      </a>
+      <nav class="topbar-links">
+        <a href="#products" class="topbar-link">Products</a>
+        <a href="#how" class="topbar-link">How it works</a>
+        <a href="#developers" class="topbar-link">Developers</a>
+        <a href="#faq" class="topbar-link">FAQ</a>
       </nav>
-      <div class="nav-right">
-        <div class="nav-tag">Self‑custodial</div>
-        <a href="mailto:pranav@flowstable.in" class="btn-primary">Get early access</a>
+      <div style="display:flex;align-items:center;gap:12px;">
+        <a href="mailto:pranav@tranzolabs.com" class="topbar-cta">Early access</a>
+        <button class="menu-toggle" onclick="document.getElementById('mobileNav').classList.add('open')" aria-label="Menu">
+          <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M3 6h14M3 10h14M3 14h14" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+        </button>
       </div>
-    </header>
+    </div>
+  </header>
 
-    <!-- HERO -->
-    <section class="hero" id="overview">
-      <div class="hero-left">
-        <div class="hero-badge animate delay-1">
-          <span class="hero-dot"></span>
-          <span>Pre‑launch · Self‑custodial · Global</span>
+  <!-- Mobile nav -->
+  <div class="mobile-nav" id="mobileNav">
+    <button class="mobile-nav-close" onclick="document.getElementById('mobileNav').classList.remove('open')" aria-label="Close">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none"><path d="M6 6l12 12M18 6L6 18" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+    </button>
+    <a href="#products" onclick="document.getElementById('mobileNav').classList.remove('open')">Products</a>
+    <a href="#how" onclick="document.getElementById('mobileNav').classList.remove('open')">How it works</a>
+    <a href="#developers" onclick="document.getElementById('mobileNav').classList.remove('open')">Developers</a>
+    <a href="#faq" onclick="document.getElementById('mobileNav').classList.remove('open')">FAQ</a>
+    <a href="mailto:pranav@tranzolabs.com" class="btn-solid" onclick="document.getElementById('mobileNav').classList.remove('open')">Early access</a>
+  </div>
+
+  <main>
+
+    <!-- ─── Hero ─── -->
+    <div class="container">
+      <section class="hero">
+        <div class="hero-tag reveal">
+          <span class="hero-pulse"></span>
+          Pre-launch &middot; Self-custodial &middot; Global
         </div>
 
-        <div class="hero-eyebrow animate delay-2">Building the Tranzo stack</div>
-
-        <h1 class="hero-title animate delay-2">
-          <span>One secure home</span>
-          <span>for all your money.</span>
+        <h1 class="hero-heading reveal reveal-delay-1">
+          Your money.<br><span class="thin">Your keys.</span>
         </h1>
 
-        <p class="hero-desc animate delay-3">
-          Tranzo is a suite of self‑custodial products for people who take money seriously: a software wallet, hardware wallet, Dripper for streaming payments, a card, and an SDK for developers.
+        <p class="hero-sub reveal reveal-delay-2">
+          Tranzo is a self-custodial money OS — a software wallet, hardware wallet, streaming payments, a card that spends from your wallet, and an SDK. No custodians. No lock-ups.
         </p>
 
-        <div class="hero-actions animate delay-4">
-          <a href="mailto:pranav@flowstable.in" class="btn-primary">Talk to the team</a>
-          <a href="https://github.com/tranzolabs" target="_blank" class="btn-ghost">View the code</a>
+        <div class="hero-actions reveal reveal-delay-3">
+          <a href="mailto:pranav@tranzolabs.com" class="btn-solid">Get early access</a>
+          <a href="https://github.com/tranzolabs" target="_blank" class="btn-outline">View on GitHub</a>
         </div>
 
-        <p class="hero-promise animate delay-5">
-          You always hold the keys. No withdrawal limits. No lock‑ups.
-        </p>
-
-        <div class="hero-stage animate delay-5">
-          <span class="hero-dot"></span>
-          Pre‑launch · In active development
-        </div>
-      </div>
-
-      <aside class="hero-right animate delay-3">
-        <div class="phone-header">
-          <span>Tranzo · Preview</span>
-          <span class="phone-tag">Self‑custodial</span>
-        </div>
-
-        <div class="phone">
-          <div class="phone-balance">
-            <div class="phone-balance-info">
-              <span class="phone-label">Prototype balance</span>
-              <span class="phone-amount">$12,450.00</span>
-            </div>
-            <div class="phone-balance-meta">
-              <span class="phone-mini-tag">Tranzo software wallet</span>
-              <span style="font-size:10px; color:var(--text-muted)">Design preview</span>
-            </div>
+        <div class="hero-metrics reveal reveal-delay-4">
+          <div class="metric">
+            <span class="metric-value">5</span>
+            <span class="metric-label">Products</span>
           </div>
-
-          <div class="phone-products">
-            <div class="phone-pill">Software wallet</div>
-            <div class="phone-pill">Hardware wallet</div>
-            <div class="phone-pill">Dripper</div>
-            <div class="phone-pill">Tranzo card</div>
-            <div class="phone-pill">SDK</div>
+          <div class="metric">
+            <span class="metric-value">100%</span>
+            <span class="metric-label">Self-custodial</span>
           </div>
-
-          <div class="phone-chat">
-            <div class="chat-row">
-              <div class="chat-bubble user">
-                Send 0.2 ETH from my software wallet to the Tranzo hardware wallet.
-              </div>
-            </div>
-            <div class="chat-row">
-              <div class="chat-avatar"></div>
-              <div class="chat-bubble">
-                Preparing a transfer from your software wallet to your paired hardware wallet address.
-              </div>
-            </div>
-            <div class="chat-row">
-              <div class="chat-avatar"></div>
-              <div class="chat-bubble">
-                Ready when you are. Review and sign on your hardware device to complete the move.
-              </div>
-            </div>
-            <div class="chat-input">
-              <span>Coming soon: Dripper, card, SDK…</span>
-              <div class="chat-dots">
-                <span class="chat-dot"></span>
-                <span class="chat-dot"></span>
-                <span class="chat-dot"></span>
-              </div>
-            </div>
+          <div class="metric">
+            <span class="metric-value">0</span>
+            <span class="metric-label">Withdrawal limits</span>
+          </div>
+          <div class="metric">
+            <span class="metric-value">24/7</span>
+            <span class="metric-label">Always on</span>
           </div>
         </div>
+      </section>
+    </div>
 
-        <div class="phone-caption">
-          <span>Self‑custodial first‑class stack.</span>
-          <span>Wallets · Dripper · Card · SDK</span>
+    <!-- ─── Wallet preview ─── -->
+    <div class="container">
+      <div class="wallet-preview reveal">
+        <div class="wallet-inner">
+          <div class="wallet-left">
+            <div class="wallet-header">
+              <span class="wallet-title">Tranzo Wallet</span>
+              <span class="wallet-status">Preview</span>
+            </div>
+            <div>
+              <div class="wallet-balance">$12,450.00</div>
+              <div class="wallet-balance-sub">Self-custodial &middot; Keys on device</div>
+            </div>
+            <div class="wallet-chips">
+              <span class="wallet-chip">Software wallet</span>
+              <span class="wallet-chip">Hardware wallet</span>
+              <span class="wallet-chip">Dripper</span>
+              <span class="wallet-chip">Card</span>
+              <span class="wallet-chip">SDK</span>
+            </div>
+          </div>
+          <div class="wallet-right">
+            <div style="font-size:10px;text-transform:uppercase;letter-spacing:0.14em;color:var(--text-ghost);margin-bottom:4px;">Recent activity</div>
+            <div class="tx-row">
+              <div class="tx-info">
+                <span class="tx-name">Dripper — Salary stream</span>
+                <span class="tx-detail">Streaming &middot; 3s ago</span>
+              </div>
+              <span class="tx-amount positive">+$0.003</span>
+            </div>
+            <div class="tx-row">
+              <div class="tx-info">
+                <span class="tx-name">Card payment — Coffee</span>
+                <span class="tx-detail">POS terminal &middot; 2h ago</span>
+              </div>
+              <span class="tx-amount negative">-$4.50</span>
+            </div>
+            <div class="tx-row">
+              <div class="tx-info">
+                <span class="tx-name">Transfer to hardware wallet</span>
+                <span class="tx-detail">Self-transfer &middot; 1d ago</span>
+              </div>
+              <span class="tx-amount negative">-$2,000</span>
+            </div>
+          </div>
         </div>
-      </aside>
-    </section>
-
-    <!-- STRIP -->
-    <div class="strip animate">
-      <div class="strip-label">Built with crypto people in mind</div>
-      <div class="strip-pills">
-        <div class="strip-pill">Hold your keys</div>
-        <div class="strip-pill">Spend like a bank account</div>
-        <div class="strip-pill">Instant, global, 24/7</div>
       </div>
     </div>
 
-    <!-- ECOSYSTEM -->
-    <section class="section" id="ecosystem">
-      <div class="section-header">
-        <div class="section-title-block">
-          <div class="section-eyebrow">The Tranzo ecosystem</div>
-          <div class="section-title">Five products. One mental model.</div>
-        </div>
-        <p class="section-desc">
-          A coherent suite instead of disconnected tools. Each piece stands alone, but they make the most sense together.
-        </p>
-      </div>
+    <!-- ─── Products ─── -->
+    <div class="container">
+      <section class="section" id="products">
+        <div class="section-label reveal">The ecosystem</div>
+        <h2 class="section-heading reveal reveal-delay-1">Five products.<br>One mental model.</h2>
+        <p class="section-sub reveal reveal-delay-2">Each piece stands alone. Together they form a coherent system for people who take their money seriously.</p>
 
-      <div class="products-grid">
-        <article class="product-card">
-          <div class="product-label">Software wallet</div>
-          <div class="product-name">Your primary money interface.</div>
-          <p class="product-desc">
-            A desktop‑grade, self‑custodial wallet designed for people who live in crypto — balances, activity, and controls in one calm surface.
-          </p>
-          <p class="product-note">Non‑custodial by default. No "sign in with email".</p>
-        </article>
-
-        <article class="product-card">
-          <div class="product-label">Hardware wallet</div>
-          <div class="product-name">Cold storage without friction.</div>
-          <p class="product-desc">
-            A hardware device for long‑term holdings that plays nicely with your day‑to‑day software wallet.
-          </p>
-          <p class="product-note">Part of the same product, not a separate brand.</p>
-        </article>
-
-        <article class="product-card">
-          <div class="product-label">Dripper</div>
-          <div class="product-name">Streaming money instead of batches.</div>
-          <p class="product-desc">
-            A primitive for salaries, subscriptions, and recurring transfers that move every second instead of once a month.
-          </p>
-          <p class="product-note">Built for employers, contributors, and protocols.</p>
-        </article>
-
-        <article class="product-card">
-          <div class="product-label">Tranzo card</div>
-          <div class="product-name">Spend from your stack in the real world.</div>
-          <p class="product-desc">
-            A card experience that respects self‑custody — funding comes from your wallet, not a black‑box account.
-          </p>
-          <p class="product-note">Planned: online, in‑store, and virtual numbers.</p>
-        </article>
-      </div>
-
-      <div class="bottom-row">
-        <div class="info-card">
-          <div class="info-title">Tranzo SDK</div>
-          <p class="info-body">
-            A developer kit that lets you plug Tranzo primitives into your own products — without forcing your users into a new custodian.
-          </p>
-          <p class="info-body">
-            Wallets, Dripper, card, and account logic exposed as clear, composable building blocks.
-          </p>
-        </div>
-        <div class="info-card">
-          <div class="info-title">For builders and operators</div>
-          <p class="info-body">
-            We are still early. If you are designing products or running money flows that need better rails, we want to hear from you.
-          </p>
-          <p class="info-body">
-            Reach out, tell us how you move money today, and we'll share how Tranzo is being shaped around those problems.
-          </p>
-        </div>
-      </div>
-    </section>
-
-    <!-- FAQ -->
-    <section class="section" id="faq">
-      <div class="section-header">
-        <div class="section-title-block">
-          <div class="section-eyebrow">Questions</div>
-          <div class="section-title">How Tranzo treats your money.</div>
-        </div>
-      </div>
-
-      <div class="faq-grid">
-        <details>
-          <summary>
-            <span class="faq-q">Is Tranzo a bank or an exchange?</span>
-            <span class="faq-icon">+</span>
-          </summary>
-          <div class="faq-a">
-            Tranzo is a self‑custodial wallet with a card and account‑like features. You keep control of your keys; we orchestrate UX, not custody.
+        <div class="products-grid reveal reveal-delay-3">
+          <div class="product-cell">
+            <span class="product-num">01</span>
+            <h3 class="product-name">Software Wallet</h3>
+            <p class="product-desc">A desktop-grade, self-custodial wallet. Balances, activity, and controls in one calm surface.</p>
+            <span class="product-tag">Non-custodial by default</span>
           </div>
-        </details>
-
-        <details>
-          <summary>
-            <span class="faq-q">Can I always withdraw my funds?</span>
-            <span class="faq-icon">+</span>
-          </summary>
-          <div class="faq-a">
-            Yes. Your assets live in wallets you control. Even if Tranzo goes away, you can move funds using your keys and standard tooling.
+          <div class="product-cell">
+            <span class="product-num">02</span>
+            <h3 class="product-name">Hardware Wallet</h3>
+            <p class="product-desc">Cold storage for long-term holdings that pairs seamlessly with your software wallet.</p>
+            <span class="product-tag">Same product, not a separate brand</span>
           </div>
-        </details>
-
-        <details>
-          <summary>
-            <span class="faq-q">Where does yield come from?</span>
-            <span class="faq-icon">+</span>
-          </summary>
-          <div class="faq-a">
-            Yield comes from on‑chain protocols and counterparties. We route and monitor; you can see the sources, adjust allocations, or opt‑out entirely.
+          <div class="product-cell">
+            <span class="product-num">03</span>
+            <h3 class="product-name">Dripper</h3>
+            <p class="product-desc">Streaming payments — salaries, subscriptions, and recurring transfers that move every second.</p>
+            <span class="product-tag">Built for employers &amp; protocols</span>
           </div>
-        </details>
-
-        <details>
-          <summary>
-            <span class="faq-q">Who is Tranzo for?</span>
-            <span class="faq-icon">+</span>
-          </summary>
-          <div class="faq-a">
-            Crypto‑native people and teams who want a serious, programmable home for their money — without handing it to a custodian.
+          <div class="product-cell">
+            <span class="product-num">04</span>
+            <h3 class="product-name">Tranzo Card</h3>
+            <p class="product-desc">Spend from your wallet in the real world. Funding comes from your keys, not a black-box account.</p>
+            <span class="product-tag">Online, in-store, virtual</span>
           </div>
-        </details>
-      </div>
-    </section>
+          <div class="product-cell">
+            <span class="product-num">05</span>
+            <h3 class="product-name">Tranzo SDK</h3>
+            <p class="product-desc">Plug Tranzo primitives into your own products — wallets, Dripper, card, and account logic as composable blocks.</p>
+            <span class="product-tag">For developers</span>
+          </div>
+          <div class="product-cell">
+            <span class="product-num">&infin;</span>
+            <h3 class="product-name">Open by design</h3>
+            <p class="product-desc">Every component is built to be extended. Your money, your rules, your integrations.</p>
+            <span class="product-tag">Composable &amp; extensible</span>
+          </div>
+        </div>
+      </section>
+    </div>
 
-    <!-- FOOTER -->
-    <footer class="footer">
-      <div class="footer-left">
-        <span>&copy; 2025 Tranzo Labs. All rights reserved.</span>
-        <span>Tranzo is pre‑launch and evolving — nothing here is financial advice.</span>
-      </div>
-      <div class="footer-right">
-        <a href="mailto:pranav@flowstable.in" class="footer-link">Email</a>
-        <a href="https://x.com/flowstable" target="_blank" class="footer-link">X</a>
-        <a href="https://github.com/tranzolabs" target="_blank" class="footer-link">GitHub</a>
-        <a href="#" class="footer-link">Terms</a>
-        <a href="#" class="footer-link">Privacy</a>
-      </div>
-    </footer>
+    <!-- ─── How it works ─── -->
+    <div class="container">
+      <div class="divider"></div>
+      <section class="section" id="how">
+        <div class="section-label reveal">How it works</div>
+        <h2 class="section-heading reveal reveal-delay-1">Card payments from<br>a non-custodial wallet.</h2>
+        <p class="section-sub reveal reveal-delay-2">When you swipe your Tranzo card, the system translates it into a wallet transaction — settled through normal payment rails.</p>
+
+        <div class="flow">
+          <div class="flow-step reveal">
+            <span class="flow-num">01</span>
+            <h3 class="flow-title">Hold your keys</h3>
+            <p class="flow-desc">Funds live in your non-custodial wallet. Private keys never leave your device.</p>
+          </div>
+          <div class="flow-step reveal reveal-delay-1">
+            <span class="flow-num">02</span>
+            <h3 class="flow-title">Swipe or tap</h3>
+            <p class="flow-desc">Use the Tranzo card at any POS terminal or online checkout. Works like a debit card.</p>
+          </div>
+          <div class="flow-step reveal reveal-delay-2">
+            <span class="flow-num">03</span>
+            <h3 class="flow-title">Sign locally</h3>
+            <p class="flow-desc">Your wallet signs the transaction on-device. The platform relays — never controls.</p>
+          </div>
+          <div class="flow-step reveal reveal-delay-3">
+            <span class="flow-num">04</span>
+            <h3 class="flow-title">Settled</h3>
+            <p class="flow-desc">The backend converts the wallet transaction and settles with the merchant via card networks.</p>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <!-- ─── Developers ─── -->
+    <div class="container">
+      <div class="divider"></div>
+      <section class="section" id="developers">
+        <div class="section-label reveal">For developers</div>
+        <h2 class="section-heading reveal reveal-delay-1">Build on Tranzo.</h2>
+        <p class="section-sub reveal reveal-delay-2">Expose self-custodial wallets, streaming payments, and card infrastructure in your own products.</p>
+
+        <div class="sdk-grid">
+          <div class="sdk-card reveal">
+            <h3 class="sdk-title">Tranzo SDK</h3>
+            <p class="sdk-body">Wallets, Dripper, card, and account logic exposed as clear, composable building blocks. Integrate without forcing your users into a new custodian.</p>
+            <a href="https://github.com/tranzolabs" target="_blank" class="btn-outline" style="width:fit-content;padding:10px 22px;font-size:12px;">View documentation</a>
+          </div>
+          <div class="sdk-card reveal reveal-delay-1">
+            <div class="code-block">
+<span class="code-comment">// Initialize Tranzo SDK</span>
+<span class="code-keyword">import</span> { <span class="code-fn">Tranzo</span> } <span class="code-keyword">from</span> <span class="code-str">'@tranzo/sdk'</span>
+
+<span class="code-keyword">const</span> wallet = <span class="code-keyword">await</span> <span class="code-fn">Tranzo</span>.<span class="code-fn">createWallet</span>({
+  <span class="code-str">type</span>: <span class="code-str">'non-custodial'</span>,
+  <span class="code-str">network</span>: <span class="code-str">'mainnet'</span>
+})
+
+<span class="code-keyword">const</span> stream = <span class="code-keyword">await</span> wallet.<span class="code-fn">dripper</span>.<span class="code-fn">create</span>({
+  <span class="code-str">to</span>: <span class="code-str">'0x...'</span>,
+  <span class="code-str">rate</span>: <span class="code-str">'100/month'</span>
+})
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <!-- ─── FAQ ─── -->
+    <div class="container">
+      <div class="divider"></div>
+      <section class="section" id="faq">
+        <div class="section-label reveal">FAQ</div>
+        <h2 class="section-heading reveal reveal-delay-1">Common questions.</h2>
+
+        <div class="faq-list reveal reveal-delay-2">
+          <details class="faq-item">
+            <summary>
+              <span>Is Tranzo a bank or an exchange?</span>
+              <span class="faq-icon">+</span>
+            </summary>
+            <div class="faq-answer">Neither. Tranzo is a self-custodial wallet with card and account-like features. You keep control of your keys — we orchestrate the UX, not custody.</div>
+          </details>
+          <details class="faq-item">
+            <summary>
+              <span>Can I always withdraw my funds?</span>
+              <span class="faq-icon">+</span>
+            </summary>
+            <div class="faq-answer">Yes. Your assets live in wallets you control. Even if Tranzo disappears, you can move funds using your keys and standard tooling. No withdrawal limits, ever.</div>
+          </details>
+          <details class="faq-item">
+            <summary>
+              <span>How does the card work without custody?</span>
+              <span class="faq-icon">+</span>
+            </summary>
+            <div class="faq-answer">When the card is used, the backend triggers a transaction from your wallet. You sign locally — the platform acts as a relay and settlement layer, never holding your funds.</div>
+          </details>
+          <details class="faq-item">
+            <summary>
+              <span>Where does yield come from?</span>
+              <span class="faq-icon">+</span>
+            </summary>
+            <div class="faq-answer">Yield comes from on-chain protocols and counterparties. We route and monitor — you can see the sources, adjust allocations, or opt out entirely.</div>
+          </details>
+          <details class="faq-item">
+            <summary>
+              <span>Who is Tranzo for?</span>
+              <span class="faq-icon">+</span>
+            </summary>
+            <div class="faq-answer">Crypto-native people and teams who want a serious, programmable home for their money — without handing it to a custodian.</div>
+          </details>
+          <details class="faq-item">
+            <summary>
+              <span>Can I use Tranzo offline?</span>
+              <span class="faq-icon">+</span>
+            </summary>
+            <div class="faq-answer">We're building optional offline payment support using telecom channels like USSD and IVR, so feature phones can still initiate transactions without internet.</div>
+          </details>
+        </div>
+      </section>
+    </div>
+
+    <!-- ─── CTA ─── -->
+    <div class="container">
+      <div class="divider"></div>
+      <section class="cta-block reveal">
+        <h2 class="cta-heading">Ready to hold your own keys?</h2>
+        <p class="cta-sub">Tranzo is in active development. Talk to the team to get early access.</p>
+        <div style="display:flex;justify-content:center;gap:12px;flex-wrap:wrap;">
+          <a href="mailto:pranav@tranzolabs.com" class="btn-solid">Talk to the team</a>
+          <a href="https://github.com/tranzolabs" target="_blank" class="btn-outline">GitHub</a>
+        </div>
+      </section>
+    </div>
+
+    <!-- ─── Footer ─── -->
+    <div class="container">
+      <footer class="footer">
+        <div class="footer-left">
+          <span>&copy; 2025 Tranzo Labs. All rights reserved.</span>
+          <span>Pre-launch — nothing here is financial advice.</span>
+        </div>
+        <div class="footer-links">
+          <a href="mailto:pranav@tranzolabs.com" class="footer-link">Email</a>
+          <a href="https://x.com/tranzolabs" target="_blank" class="footer-link">X</a>
+          <a href="https://github.com/tranzolabs" target="_blank" class="footer-link">GitHub</a>
+          <a href="#" class="footer-link">Terms</a>
+          <a href="#" class="footer-link">Privacy</a>
+        </div>
+      </footer>
+    </div>
 
   </main>
 
-  <!-- Intersection Observer for scroll animations -->
   <script>
-    document.addEventListener('DOMContentLoaded', () => {
-      // Smooth scroll for nav links
-      document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-        anchor.addEventListener('click', function(e) {
-          e.preventDefault();
-          const target = document.querySelector(this.getAttribute('href'));
-          if (target) {
-            target.scrollIntoView({ behavior: 'smooth', block: 'start' });
-          }
-        });
+    // Scroll reveal
+    const reveals = document.querySelectorAll('.reveal');
+    const revealObs = new IntersectionObserver((entries) => {
+      entries.forEach(e => {
+        if (e.isIntersecting) {
+          e.target.classList.add('visible');
+          revealObs.unobserve(e.target);
+        }
       });
+    }, { threshold: 0.08, rootMargin: '0px 0px -40px 0px' });
+    reveals.forEach(el => revealObs.observe(el));
 
-      // Active nav link on scroll
-      const sections = document.querySelectorAll('section[id]');
-      const navLinks = document.querySelectorAll('.nav-link');
-
-      const observer = new IntersectionObserver((entries) => {
-        entries.forEach(entry => {
-          if (entry.isIntersecting) {
-            navLinks.forEach(link => link.classList.remove('active'));
-            const activeLink = document.querySelector(`.nav-link[href="#${entry.target.id}"]`);
-            if (activeLink) activeLink.classList.add('active');
-          }
+    // Nav scroll effect
+    const topbar = document.getElementById('topbar');
+    let ticking = false;
+    window.addEventListener('scroll', () => {
+      if (!ticking) {
+        requestAnimationFrame(() => {
+          topbar.classList.toggle('scrolled', window.scrollY > 40);
+          ticking = false;
         });
-      }, { threshold: 0.3 });
+        ticking = true;
+      }
+    });
 
-      sections.forEach(section => observer.observe(section));
-
-      // Scroll-triggered fade-in for sections
-      const fadeObserver = new IntersectionObserver((entries) => {
-        entries.forEach(entry => {
-          if (entry.isIntersecting) {
-            entry.target.style.opacity = '1';
-            entry.target.style.transform = 'translateY(0)';
-          }
-        });
-      }, { threshold: 0.1 });
-
-      document.querySelectorAll('.section, .strip').forEach(el => {
-        el.style.opacity = '0';
-        el.style.transform = 'translateY(20px)';
-        el.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
-        fadeObserver.observe(el);
+    // Smooth scroll for anchor links
+    document.querySelectorAll('a[href^="#"]').forEach(a => {
+      a.addEventListener('click', e => {
+        e.preventDefault();
+        const t = document.querySelector(a.getAttribute('href'));
+        if (t) t.scrollIntoView({ behavior: 'smooth', block: 'start' });
       });
     });
   </script>
+
 </body>
 </html>
